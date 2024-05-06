@@ -1,0 +1,48 @@
+services:
+  dremio:
+    image: dremio/dremio-oss:25.0
+    ports:
+      - 9047:9047
+      - 31010:31010
+      - 32010:32010
+      - 45678:45678
+    volumes:
+      - dremio:/opt/dremio/data
+    environment:
+      DREMIO_JAVA_EXTRA_OPTS: -Ddebug.addDefaultUser=true
+  minio:
+    image: minio/minio
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - minio:/data
+    command: [ "server", "/data", "--console-address", ":9001" ]
+
+  nessie:
+    image: ghcr.io/projectnessie/nessie:0.81.1
+    ports:
+      - 19120:19120
+    environment:
+      - NESSIE_VERSION_STORE_TYPE=ROCKSDB
+    volumes:
+      - nessie:/tmp/nessie-rocksdb-store
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      MSSQL_SA_PASSWORD: SecretPassword123
+      ACCEPT_EULA: "Y"
+    ports:
+      - 1433:1433
+
+volumes:
+  dremio:
+  minio:
+  nessie:
